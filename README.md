@@ -1,139 +1,109 @@
-# Python Security Log Analyzer
+# 🔐 Python Security Log Analyzer
 
-A beginner-to-intermediate **defensive** cybersecurity project in Python.
-It reads a local authentication/server log file, parses each line, and
-detects suspicious login activity such as brute-force attempts.
+A beginner-to-intermediate **defensive cybersecurity project built with Python** that analyzes local authentication/server log files and identifies suspicious login activity such as repeated failed login attempts that may indicate brute-force behavior.
 
-Strictly defensive and educational — no offensive / hacking functionality.
+The project is designed for **cybersecurity learning, log analysis, security monitoring, and Python practice**. It does not perform exploitation, unauthorized access, password attacks, or network scanning.
 
-## Features
+---
 
-- Parses per line: **timestamp**, **event type** (`SUCCESS` / `FAILED` / `OTHER`),
-  **username** (if present), **source IP**
-- Counts successful logins, failed logins, other events
-- Detects **repeated failed attempts** and flags **suspicious IPs**
-  (failed count from one IP `>= --threshold`, default `3`)
-- Configurable threshold via CLI or `config.py`
-- Outputs:
-  - terminal security summary
-  - JSON report (`reports/security_report.json`)
-  - CSV per-IP summary (`reports/security_report.csv`)
-- Robust: skips malformed lines with warnings, validates inputs,
-  handles missing files / permissions gracefully
-- Runtime uses Python standard library only (`re`, `argparse`, `collections`,
-  `datetime`, `json`, `csv`, `pathlib`, `logging`, `ipaddress`, `typing`);
-  `pytest` is a development-only dependency for tests
-- Type hints + docstrings throughout, unit-tested
+## 📌 Project Overview
 
-## Architecture
+Security logs contain valuable information about authentication activity on a system.
+
+For example, a log may contain:
 
 ```text
-sample.log ──▶ parse_log_line() ──▶ load_logs() ──▶ analyze_logs() ──┬──▶ format_summary() → terminal
-               (re, datetime)        (pathlib,            (collections.Counter)  ├──▶ save_json_report() → .json
-                                      logging, validation)                      └──▶ save_csv_report()  → .csv
-
-config.py ──▶ shared defaults (paths, threshold, timestamp format)
-tests/test_analyzer.py ──▶ pytest coverage of parsing, analysis, reports
+2026-09-26 08:12:01 LOGIN_SUCCESS user=alice ip=192.168.1.10
+2026-09-26 08:15:22 LOGIN_FAILED user=admin ip=192.168.1.99
+2026-09-26 08:15:25 LOGIN_FAILED user=admin ip=192.168.1.99
+2026-09-26 08:15:27 LOGIN_FAILED user=admin ip=192.168.1.99
 ```
 
-Data flow: raw line → structured event dict
-`{timestamp, timestamp_raw, event_type, username, ip, raw}`
-→ aggregated report dict
-`{totals, suspicious_ips, failed/success_by_ip/user, ip_summary, time_range}`.
+Manually checking hundreds or thousands of log entries can be difficult.
 
-## Installation
+This project automates the process by:
 
-Requirements: **Python 3.11+** (supported and tested on Python 3.11, 3.12, 3.13).
+1. Reading a local log file.
+2. Parsing individual log entries.
+3. Identifying successful and failed login attempts.
+4. Grouping failed attempts by source IP address.
+5. Comparing failure counts against a configurable threshold.
+6. Flagging potentially suspicious IP addresses.
+7. Generating security reports in JSON and CSV format.
+8. Handling malformed log entries without crashing.
 
-```bash
-# 1. Clone / enter the project
-cd Security_log_analyzer
+> **Important:** A flagged IP does not automatically mean that an attack occurred. It indicates a suspicious pattern that may require further investigation.
 
-# 2. (Recommended) create a virtual environment
-python -m venv .venv
-# Windows:
-.venv\Scripts\activate
-# macOS/Linux:
-# source .venv/bin/activate
+---
 
-# 3. Install test dependency (development only)
-pip install -r requirements.txt
-```
+# 🎯 Objectives
 
-No runtime dependencies — the analyzer itself uses the Python standard
-library only. `requirements.txt` contains `pytest` for running the test suite.
+The main objectives of this project are:
 
-## Usage
+* Learn practical Python programming.
+* Understand authentication and server logs.
+* Practice regular expressions and text parsing.
+* Use Python collections for log analysis.
+* Detect repeated failed authentication attempts.
+* Generate machine-readable security reports.
+* Practice exception handling and input validation.
+* Write unit tests using `pytest`.
+* Follow basic defensive cybersecurity practices.
 
-```bash
-# Basic run (uses sample.log, threshold 3)
-python analyzer.py
+---
 
-# Custom log file + threshold
-python analyzer.py --log-file sample.log --threshold 5
+# ✨ Features
 
-# Custom report locations
-python analyzer.py --json-out reports/my.json --csv-out reports/my.csv
+### 🔍 Log File Analysis
 
-# Summary only, no files written
-python analyzer.py --no-reports
+Reads a local authentication/server log file and processes each line.
 
-# Debug logging
-python analyzer.py -v
+### 🔐 Login Event Detection
 
-# Full help
-python analyzer.py --help
-```
+Identifies:
 
-Run the tests:
+* Successful logins
+* Failed logins
+* Other events
 
-```bash
-pytest -v
-```
+### 🚨 Suspicious Activity Detection
 
-Expected: all tests pass (33 passed on Python 3.11+).
+Groups failed login attempts by source IP address.
 
-## Example Output
-
-Terminal:
+By default, an IP is considered suspicious when it has:
 
 ```text
-====================================================
- SECURITY LOG ANALYSIS SUMMARY
-====================================================
-Total events       : 32
-Successful logins  : 10
-Failed logins      : 20
-Other events       : 2
-Failed threshold   : >= 3 fails from one IP
-Time range         : 2026-09-26 08:12:01 .. 2026-09-26 10:30:09
-----------------------------------------------------
-SUSPICIOUS IPs (repeated failures):
-  ! 203.0.113.5     7 failed attempt(s)
-  ! 192.168.1.99    5 failed attempt(s)
-  ! 198.51.100.23   4 failed attempt(s)
-----------------------------------------------------
-Top failed usernames targeted:
-    admin           8 failure(s)
-    alice           4 failure(s)
-    ...
-Top failed source IPs:
-    203.0.113.5     7 failure(s)
-    192.168.1.99    5 failure(s)
-    198.51.100.23   4 failure(s)
-====================================================
-INFO: JSON report written to reports/security_report.json
-INFO: CSV report written to reports/security_report.csv
+3 or more failed login attempts
 ```
 
-JSON (`reports/security_report.json`, excerpt):
+The threshold can be configured.
+
+### 📊 Security Summary
+
+Displays a terminal summary containing:
+
+```text
+Total events
+Successful logins
+Failed logins
+Other events
+Failed threshold
+Time range
+Suspicious IP addresses
+```
+
+### 📄 JSON Report
+
+The analyzer can generate a structured JSON report suitable for further processing.
+
+Example:
 
 ```json
 {
   "total_events": 32,
   "successful_logins": 10,
   "failed_logins": 20,
-  "failed_threshold": 3,
+  "other_events": 2,
   "suspicious_ips": {
     "203.0.113.5": 7,
     "192.168.1.99": 5,
@@ -142,56 +112,453 @@ JSON (`reports/security_report.json`, excerpt):
 }
 ```
 
-CSV (`reports/security_report.csv`, excerpt):
+### 📑 CSV Report
 
-```csv
-ip,successful_logins,failed_logins,total,flagged_suspicious
-10.0.0.5,3,0,3,False
-192.168.1.99,0,5,5,True
-198.51.100.23,0,4,4,True
-203.0.113.5,0,7,7,True
+A CSV report is also generated for easy viewing in spreadsheet applications.
+
+### 🛡️ Graceful Error Handling
+
+Malformed or invalid log lines are skipped with a warning instead of crashing the entire program.
+
+Example:
+
+```text
+WARNING: Line 26: unparseable, skipped:
+'THIS IS NOT A VALID LOG LINE AND SHOULD BE SKIPPED GRACEFULLY'
 ```
 
-## Security Considerations
+### 🧪 Automated Testing
 
-- **Local-only, read-only**: the tool only *reads* the log file you point it at;
-  it never opens network connections or modifies the system.
-- **No credentials parsed**: only username + IP + timestamp are extracted;
-  never feed files containing passwords/secrets into reports you share.
-- **Warning logs may echo raw lines**: unparseable lines are logged with a
-  warning that includes the raw line content. Handle logs containing secrets
-  carefully (avoid sharing terminal output, redact before posting).
-- **Reports may contain PII** (usernames, IPs) — treat JSON/CSV outputs as
-  sensitive, restrict permissions, and redact before sharing.
-- **Log integrity**: this tool assumes the log file is trustworthy. In
-  production, ship logs to append-only storage so attackers cannot tamper
-  with the evidence you analyze.
-- **Threshold ≠ verdict**: a flagged IP is a *signal* (possible brute force),
-  not proof of malice — always correlate with firewall/IDS data.
+The project includes unit tests using `pytest`.
 
-## Limitations
+Current test status:
 
-- IPv4 only (no IPv6 pattern yet). IPv4 candidates with out-of-range octets
-  (for example `999.999.999.999`) are rejected via the standard-library
-  `ipaddress` module.
-- Single timestamp format (`YYYY-MM-DD HH:MM:SS`); other syslog formats
-  without that prefix are counted as unparseable for time-range purposes
-  (IP/user/event are still extracted when present).
-- Keyword-based classification (`failed`/`accepted`/…); unusual wording
-  falls back to `OTHER`.
-- Single-file, whole-file-in-memory analysis — fine for learning-size logs,
-  not for multi-GB production logs.
-- No real-time / streaming mode.
+```text
+33 passed
+```
 
-## Future Improvements
+---
 
-- IPv6 + broader syslog timestamp support
-- Time-window detection (e.g. “N failures in M minutes”) instead of flat counts
-- Allowlist for known-good IPs, blocklist export (firewall rules)
-- HTML dashboard report
-- Streaming mode for large files (`mmap` / generators)
-- Config file (`analyzer.ini` / `pyproject.toml` section) for thresholds
+# 🏗️ Project Architecture
 
-## License
+```text
+                    ┌──────────────────┐
+                    │    sample.log    │
+                    └────────┬─────────┘
+                             │
+                             ▼
+                    ┌──────────────────┐
+                    │    analyzer.py   │
+                    │                  │
+                    │  Parse Log Lines │
+                    │       ↓          │
+                    │  Classify Events │
+                    │       ↓          │
+                    │ Count IPs        │
+                    │       ↓          │
+                    │ Detect Patterns  │
+                    └────────┬─────────┘
+                             │
+              ┌──────────────┼──────────────┐
+              ▼              ▼              ▼
+        ┌──────────┐   ┌──────────┐   ┌───────────┐
+        │ Terminal │   │   JSON   │   │    CSV    │
+        │ Summary  │   │  Report  │   │   Report  │
+        └──────────┘   └──────────┘   └───────────┘
+```
 
-MIT — see [LICENSE](LICENSE).
+---
+
+# 🛠️ Technology Stack
+
+| Technology                | Purpose                           |
+| ------------------------- | --------------------------------- |
+| **Python 3.11+**          | Core programming language         |
+| **Regular Expressions**   | Log parsing                       |
+| **Pathlib**               | File and path handling            |
+| **Collections / Counter** | Counting failed attempts          |
+| **Argparse**              | Command-line interface            |
+| **IPaddress**             | IPv4 validation                   |
+| **JSON**                  | Structured report generation      |
+| **CSV**                   | Tabular report generation         |
+| **Logging**               | Warnings and application messages |
+| **Pytest**                | Automated testing                 |
+
+### Runtime Dependencies
+
+The application itself uses only the **Python standard library**.
+
+`pytest` is used only for development and testing.
+
+---
+
+# 📁 Project Structure
+
+```text
+python-security-log-analyzer/
+│
+├── analyzer.py              # Main log analysis logic
+├── config.py                # Configuration and threshold
+├── sample.log               # Sample authentication log
+├── README.md                # Project documentation
+├── LICENSE                  # MIT License
+├── requirements.txt         # Development dependency
+├── .gitignore               # Git ignored files
+│
+├── reports/
+│   └── .gitkeep             # Keeps reports directory in Git
+│
+└── tests/
+    ├── __init__.py
+    └── test_analyzer.py     # Automated tests
+```
+
+Generated reports are intentionally ignored by Git.
+
+---
+
+# ⚙️ Installation
+
+## 1. Clone the repository
+
+```bash
+git clone git@github.com:chhuparustam/python-security-log-analyzer.git
+```
+
+Or using HTTPS:
+
+```bash
+git clone https://github.com/chhuparustam/python-security-log-analyzer.git
+```
+
+---
+
+## 2. Enter the project directory
+
+```bash
+cd python-security-log-analyzer
+```
+
+---
+
+## 3. Create a virtual environment
+
+### Windows
+
+```bash
+python -m venv .venv
+.venv\Scripts\activate
+```
+
+### Linux/macOS
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+```
+
+---
+
+## 4. Install development dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
+---
+
+# ▶️ Usage
+
+Run the analyzer with the default sample log:
+
+```bash
+python analyzer.py
+```
+
+The application analyzes `sample.log` and displays a security summary.
+
+Example:
+
+```text
+====================================================
+ SECURITY LOG ANALYSIS SUMMARY
+====================================================
+
+Total events       : 32
+Successful logins  : 10
+Failed logins      : 20
+Other events       : 2
+Failed threshold   : >= 3 fails from one IP
+
+Time range         :
+2026-09-26 08:12:01 .. 2026-09-26 10:30:09
+
+Suspicious IPs:
+203.0.113.5        : 7 failed attempts
+192.168.1.99       : 5 failed attempts
+198.51.100.23      : 4 failed attempts
+```
+
+---
+
+# 🚫 Running Without Reports
+
+If you only want the terminal analysis and do not want JSON/CSV reports generated:
+
+```bash
+python analyzer.py --no-reports
+```
+
+---
+
+# 📝 Sample Log Format
+
+The project uses authentication-style log entries such as:
+
+```text
+2026-09-26 08:12:01 LOGIN_SUCCESS user=alice ip=192.168.1.10
+2026-09-26 08:13:45 LOGIN_FAILED user=admin ip=203.0.113.5
+2026-09-26 08:14:03 LOGIN_FAILED user=admin ip=203.0.113.5
+2026-09-26 08:14:22 LOGIN_FAILED user=admin ip=203.0.113.5
+```
+
+The analyzer extracts:
+
+* Timestamp
+* Event type
+* Username
+* Source IP address
+
+---
+
+# 🚨 How Suspicious IP Detection Works
+
+Suppose the configuration threshold is:
+
+```text
+3 failed attempts
+```
+
+And the log contains:
+
+```text
+192.168.1.99 → 1 failed attempt
+203.0.113.5  → 7 failed attempts
+198.51.100.23 → 4 failed attempts
+```
+
+The analyzer identifies:
+
+```text
+203.0.113.5
+198.51.100.23
+```
+
+as suspicious because their failed-login count is greater than or equal to the configured threshold.
+
+### Important Security Interpretation
+
+The application does **not** claim that these IP addresses are attackers.
+
+It only detects a pattern that may be consistent with:
+
+* Brute-force attempts
+* Repeated authentication failures
+* Misconfigured applications
+* Forgotten passwords
+* Automated login attempts
+* Other abnormal authentication behavior
+
+Further investigation would be required before concluding that an attack occurred.
+
+---
+
+# 🧠 Key Python Concepts Demonstrated
+
+This project demonstrates practical use of:
+
+### File Handling
+
+```python
+with open(log_file, "r", encoding="utf-8") as file:
+    ...
+```
+
+### Regular Expressions
+
+Used to extract structured information from log lines.
+
+### `Counter`
+
+Used to count failed attempts per IP address.
+
+### `argparse`
+
+Used to provide command-line options.
+
+### `pathlib`
+
+Used for portable file and directory handling.
+
+### Exception Handling
+
+Used to handle:
+
+* Missing files
+* Invalid input
+* Malformed log entries
+* Invalid IP addresses
+* Report-writing errors
+
+### Type Hints
+
+Functions use type annotations to improve readability and maintainability.
+
+### Unit Testing
+
+The analyzer is tested using `pytest`.
+
+---
+
+# 🧪 Testing
+
+Run all tests:
+
+```bash
+pytest -q
+```
+
+Current result:
+
+```text
+33 passed
+```
+
+The tests cover areas including:
+
+* Valid log parsing
+* Invalid log lines
+* Empty logs
+* Failed-login detection
+* Suspicious IP detection
+* Invalid IP addresses
+* Event classification
+* JSON serialization
+* CSV/report generation
+* Missing input files
+* Command-line behavior
+* Parent directory creation
+
+---
+
+# 🔒 Security Design
+
+This project is intentionally **defensive**.
+
+It:
+
+* Reads local files only.
+* Does not connect to external systems.
+* Does not scan networks.
+* Does not exploit vulnerabilities.
+* Does not perform password attacks.
+* Does not attempt unauthorized access.
+* Does not collect credentials.
+* Does not execute commands from log content.
+
+Its purpose is to demonstrate basic **security monitoring and log analysis**.
+
+---
+
+# ⚠️ Limitations
+
+This is an educational project and should not be considered a production SIEM or intrusion detection system.
+
+Current limitations include:
+
+* Supports the project's defined log format.
+* Detection is based primarily on failed-login counts.
+* Does not perform real-time log monitoring.
+* Does not correlate events across multiple servers.
+* Does not perform geolocation or reputation checks.
+* Does not automatically block suspicious IP addresses.
+* Does not confirm whether suspicious activity is malicious.
+* Does not integrate with external SIEM platforms.
+
+---
+
+# 🚀 Future Improvements
+
+Possible future improvements include:
+
+* Real-time log monitoring
+* Support for Apache/Nginx logs
+* Support for Windows Event Logs
+* Configurable detection rules
+* Time-window based detection
+* Email security alerts
+* Dashboard visualization
+* SQLite/PostgreSQL storage
+* SIEM integration
+* IP reputation integration
+* Authentication anomaly detection
+* Docker deployment
+* Web-based security dashboard
+
+---
+
+# 📚 Learning Outcomes
+
+Through this project, I practiced:
+
+* Python programming
+* File processing
+* Regular expressions
+* Data structures
+* Exception handling
+* CLI application development
+* Unit testing
+* JSON and CSV processing
+* IP validation
+* Defensive cybersecurity
+* Security log analysis
+* Git and GitHub workflow
+* Writing technical documentation
+
+---
+
+# 🎓 Project Purpose
+
+This project was developed as part of my practical learning journey in **Python and Cybersecurity**.
+
+It demonstrates how Python can be used to automate a basic security monitoring task and identify potentially suspicious authentication patterns from log data.
+
+---
+
+# 👨‍💻 Author
+
+**Chhuparustam Kumar Kushwaha**
+
+BCA Student | Python Developer | Cybersecurity Enthusiast
+
+GitHub:
+https://github.com/chhuparustam
+
+Portfolio:
+https://chhuparustam.com.np
+
+---
+
+# 📄 License
+
+This project is licensed under the **MIT License**.
+
+See the [LICENSE](LICENSE) file for details.
+
+---
+
+## ⭐ If You Find This Project Useful
+
+Feel free to explore the repository, study the implementation, and use the project for educational purposes.
+
+**Built with Python 🐍 and a focus on Defensive Cybersecurity 🔐**
