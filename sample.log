@@ -1,0 +1,36 @@
+2026-09-26 08:12:01 INFO Successful login for user alice from 192.168.1.10
+2026-09-26 08:13:44 INFO Successful login for user bob from 10.0.0.5
+2026-09-26 08:15:02 WARN Failed login for user alice from 198.51.100.23 reason="invalid password"
+2026-09-26 08:15:31 WARN Failed login for user alice from 198.51.100.23 reason="invalid password"
+2026-09-26 08:16:05 WARN Failed login for user alice from 198.51.100.23 reason="invalid password"
+2026-09-26 08:16:40 WARN Failed login for user alice from 198.51.100.23 reason="invalid password"
+2026-09-26 08:18:12 INFO Successful login for user carol from 172.16.0.8
+2026-09-26 08:20:55 WARN Failed password for invalid user admin from 203.0.113.5 port 48231
+2026-09-26 08:21:03 WARN Failed password for invalid user admin from 203.0.113.5 port 48233
+2026-09-26 08:21:15 WARN Failed password for invalid user root from 203.0.113.5 port 48235
+2026-09-26 08:21:27 WARN Failed password for invalid user admin from 203.0.113.5 port 48237
+2026-09-26 08:21:39 WARN Failed password for invalid user test from 203.0.113.5 port 48239
+2026-09-26 08:21:51 WARN Failed password for invalid user guest from 203.0.113.5 port 48241
+2026-09-26 08:22:10 INFO Accepted password for bob from 10.0.0.5 port 22
+2026-09-26 08:25:00 INFO Successful login for user alice from 192.168.1.10
+2026-09-26 08:30:11 WARN Failed login for user carol from 192.168.1.15 reason="invalid password"
+2026-09-26 08:31:02 WARN Failed login for user carol from 192.168.1.15 reason="invalid password"
+2026-09-26 08:35:44 INFO Successful login for user dave from 10.0.0.9
+2026-09-26 08:40:00 INFO User bob logged out from 10.0.0.5
+2026-09-26 08:42:19 WARN Failed login for user eve from 203.0.113.5 reason="unknown user"
+2026-09-26 08:45:33 INFO Successful login for user alice from 192.168.1.10
+2026-09-26 08:50:21 INFO Password authentication succeeded for carol from 172.16.0.8
+2026-09-26 08:55:02 WARN Failed login username=bob src_ip=198.51.100.99 reason="account locked"
+2026-09-26 09:02:17 INFO Successful login username=carol src_ip=172.16.0.8
+2026-09-26 09:10:44 WARN Access denied for user frank from 203.0.113.9
+THIS IS NOT A VALID LOG LINE AND SHOULD BE SKIPPED GRACEFULLY
+2026-09-26 09:15:00 INFO Successful login for user bob from 10.0.0.5
+2026-09-26 09:20:12 INFO System health check OK
+
+
+
+2026-09-26 10:30:01 LOGIN_FAILED user=admin ip=192.168.1.99
+2026-09-26 10:30:03 LOGIN_FAILED user=admin ip=192.168.1.99
+2026-09-26 10:30:05 LOGIN_FAILED user=admin ip=192.168.1.99
+2026-09-26 10:30:07 LOGIN_FAILED user=admin ip=192.168.1.99
+2026-09-26 10:30:09 LOGIN_FAILED user=admin ip=192.168.1.99
